@@ -1,7 +1,8 @@
 
 FROM python:3.10
 
-WORKDIR /code
+ARG CODE_DIR=/code
+WORKDIR $CODE_DIR
 
 # Java
 RUN apt-get update && apt-get install -y openjdk-11-jre
@@ -19,3 +20,13 @@ RUN curl -sL --retry 3 $SPARK_URL | gunzip | tar x -C /opt/ \
 RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
 ENV PATH=$PATH:/root/.poetry/bin
 RUN poetry config virtualenvs.create false
+
+# Install dependencies.
+ADD pyproject.toml poetry.lock $CODE_DIR
+RUN poetry install
+
+# Install the module.
+ADD . $CODE_DIR
+RUN --mount=type=secret,id=id_rsa,dst=/root/.ssh/id_rsa poetry install
+
+ENV PYSPARK_DRIVER_PYTHON=ipython
