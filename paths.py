@@ -1,6 +1,7 @@
 import os
 
 
+# TODO: Move to settings.
 SPARK_ENV = os.environ.get('SPARK_ENV', 'dev')
 DST_BUCKET = os.environ.get('DST_BUCKET', 'loam-corpus')
 DST_PREFIX = os.environ.get('DST_PREFIX', 'v1')
@@ -11,7 +12,9 @@ ENV_ROOT = {
     'prod': 's3a://',
 }
 
+ROOT = ENV_ROOT[SPARK_ENV]
 
+
+# TODO: Make it possible to pass root / bucket / prefix?
 def env_path(path: str):
-    root = ENV_ROOT[SPARK_ENV]
-    return f'{root}{DST_BUCKET}/{DST_PREFIX}/{path}'
+    return f'{ROOT}{DST_BUCKET}/{DST_PREFIX}/{path}'
