@@ -1,0 +1,90 @@
+#cloud-config
+
+write_files:
+
+  - path: /etc/spark/conf/spark-env.sh
+    content: |
+      #!/usr/bin/env bash
+
+      # Use ipython for driver.
+      PYSPARK_DRIVER_PYTHON=ipython
+
+      # So that links work properly in Spark admin.
+      SPARK_PUBLIC_DNS=`wget -q -O - http://169.254.169.254/latest/meta-data/public-hostname`
+
+      # Avoid too-many-open-files errors.
+      ulimit -n 100000
+
+      # Disable parallelism for sklearn / spacy.
+      OPENBLAS_NUM_THREADS=1
+
+      # Use common hash seed across nodes (needed for reduceByKey).
+      PYTHONHASHSEED=1
+
+      SPARK_WORKER_DIR=${data_dir}/work
+
+      # Credentials.
+      AWS_ACCESS_KEY_ID=${aws_access_key_id}
+      AWS_SECRET_ACCESS_KEY=${aws_secret_access_key}
+
+  - path: /etc/spark/conf/spark-defaults.conf
+    content: |
+      spark.master spark://${master_private_ip}:7077
+      spark.driver.memory ${driver_memory}
+      spark.executor.memory ${executor_memory}
+      spark.driver.maxResultSize ${max_driver_result_size}
+      spark.jars.packages ${join(",", spark_packages)}
+
+      spark.local.dir ${data_dir}/spark
+      spark.driver.extraJavaOptions -Dderby.system.home=${data_dir}/derby
+      spark.sql.warehouse.dir ${data_dir}/spark-warehouse
+      spark.hadoop.hadoop.tmp.dir ${data_dir}/hadoop
+
+      spark.master.rest.enabled true
+      spark.task.maxFailures 20
+      spark.hadoop.fs.s3a.connection.maximum 1000
+      spark.hadoop.fs.s3a.bucket.all.committer.magic.enabled true
+      spark.sql.shuffle.partitions 2000
+      spark.sql.execution.arrow.maxRecordsPerBatch 200
+
+  - path: /var/lib/cloud/scripts/per-boot/start-spark.sh
+    permissions: 0755
+    content: |
+      #!/bin/sh
+
+      export AWS_ACCESS_KEY_ID=${aws_access_key_id}
+      export AWS_SECRET_ACCESS_KEY=${aws_secret_access_key}
+
+      aws ecr get-login-password --region us-east-1 | \
+        docker login --username AWS --password-stdin ${ecr_server}
+
+      docker run -d --rm \
+        --name spark \
+        --network host \
+        --env SPARK_ENV=prod \
+        -v /data:/data \
+        -v /etc/spark/conf:/opt/spark/conf \
+        -p 8080:8080 \
+        ${!master && gpu_workers ? "--gpus all" : ""} \
+        ${ecr_server}/${ecr_repo} \
+        ${
+          master ?
+          "spark-class org.apache.spark.deploy.master.Master" :
+          "spark-class org.apache.spark.deploy.worker.Worker spark://${master_private_ip}:7077"
+        }
+
+  - path: /home/ubuntu/spark-bash.sh
+    permissions: 0755
+    content: |
+      #!/bin/bash
+
+      CONTAINER_ID=$(sudo docker ps -q --filter "name=spark")
+      DOCKER_CMD="sudo docker exec -it $${CONTAINER_ID} bash"
+
+      tmux attach -t spark || tmux new -s spark "$DOCKER_CMD"
+
+  # Automatically drop into Spark shell on login.
+  - path: /home/ubuntu/.bashrc
+    content: |
+      source ./spark-bash.sh
+    append: true
