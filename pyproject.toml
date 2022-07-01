@@ -9,6 +9,7 @@ python = "^3.10"
 ipython = "^8.4.0"
 datasets = { git = "https://github.com/huggingface/datasets.git", branch = "fix-xisfile" }
 pandas = "^1.4.3"
+boltons = "^21.0.0"
 
 [tool.poetry.dev-dependencies]
 
