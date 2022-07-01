@@ -1,4 +1,4 @@
-from pyspark.sql import SparkSession, types as T
+from pyspark.sql import SparkSession, types as T, functions as F
 from typing import Optional
 from huggingface_hub import HfApi
 from datasets import load_dataset
@@ -31,6 +31,10 @@ def iter_dataset(dataset_id: str):
         yield dict(dataset_id=dataset_id, **row)
 
 
+def parse_language(dataset_id: str):
+    return dataset_id.split('_')[2]
+
+
 def main(
     limit_datasets: Optional[int] = None,
     limit_records: Optional[int] = None,
@@ -41,8 +45,10 @@ def main(
     ids = spark.sparkContext.parallelize(ids[:limit_datasets])
 
     df = (
-        ids.flatMap(lambda ds_id: islice(iter_dataset(ds_id), limit_records))
+        ids
+        .flatMap(lambda ds_id: islice(iter_dataset(ds_id), limit_records))
         .toDF(DOC_SCHEMA)
+        .withColumn('language', F.udf(parse_language)('dataset_id'))
     )
 
     return df
