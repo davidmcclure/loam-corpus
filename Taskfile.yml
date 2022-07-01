@@ -1,0 +1,22 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  IMAGE_NAME: loam-corpus
+  ECR_SERVER: 574648240144.dkr.ecr.us-east-1.amazonaws.com
+  ECR_REPO: '{{.ECR_SERVER}}/{{.IMAGE_NAME}}'
+
+tasks:
+
+  build: docker build {{.CLI_ARGS}} . -t {{.IMAGE_NAME}}
+
+  bash: docker run -it -v $(pwd):/code {{.CLI_ARGS}} {{.IMAGE_NAME}} bash
+
+  push:
+    cmds:
+      - docker image tag {{.IMAGE_NAME}} {{.ECR_REPO}}
+      - >
+        aws ecr get-login-password --region us-east-1 |
+        docker login --username AWS --password-stdin {{.ECR_SERVER}}
+      - docker push {{.ECR_REPO}}

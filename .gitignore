@@ -141,3 +141,5 @@ dev.env
 
 # vscode
 .vscode/
+
+/data
