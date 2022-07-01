@@ -104,15 +104,11 @@ locals {
 locals {
   master_user_data = templatefile(
     "cloud-config.yaml.tftpl",
-    merge(local.user_data_vars, {
-      master = true
-    })
+    merge(local.user_data_vars, { master = true })
   )
   worker_user_data = templatefile(
     "cloud-config.yaml.tftpl",
-    merge(local.user_data_vars, {
-      master = false
-    })
+    merge(local.user_data_vars, { master = false })
   )
 }
 
