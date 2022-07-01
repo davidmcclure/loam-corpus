@@ -1,4 +1,5 @@
 from pyspark.sql import SparkSession, types as T
+from typing import Optional
 from huggingface_hub import HfApi
 from datasets import load_dataset
 from itertools import islice
@@ -30,14 +31,17 @@ def iter_dataset(dataset_id: str):
         yield dict(dataset_id=dataset_id, **row)
 
 
-def main():
+def main(
+    limit_datasets: Optional[int] = None,
+    limit_records: Optional[int] = None,
+):
     spark = SparkSession.builder.getOrCreate()
 
     ids = list_lm_dataset_ids()
-    ids = spark.sparkContext.parallelize(ids[:10])
+    ids = spark.sparkContext.parallelize(ids[:limit_datasets])
 
     df = (
-        ids.flatMap(lambda ds_id: islice(iter_dataset(ds_id), 100))
+        ids.flatMap(lambda ds_id: islice(iter_dataset(ds_id), limit_records))
         .toDF(DOC_SCHEMA)
     )
 
