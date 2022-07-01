@@ -4,6 +4,11 @@ from huggingface_hub import HfApi
 from datasets import load_dataset
 from itertools import islice
 
+import paths
+
+
+DST = paths.env_path('loam.parquet')
+
 
 DOC_SCHEMA = T.StructType([
     T.StructField('dataset_id', T.StringType()),
@@ -35,7 +40,7 @@ def parse_language(dataset_id: str):
     return dataset_id.split('_')[2]
 
 
-def main(
+def load(
     limit_datasets: Optional[int] = None,
     limit_records: Optional[int] = None,
 ):
@@ -52,6 +57,11 @@ def main(
     )
 
     return df
+
+
+def main():
+    df = load(10, 100)
+    df.write.parquet(DST, mode='overwrite')
 
 
 if __name__ == '__main__':
