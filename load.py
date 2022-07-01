@@ -1,7 +1,14 @@
-from pyspark.sql import SparkSession
+from pyspark.sql import SparkSession, types as T
 from huggingface_hub import HfApi
 from datasets import load_dataset
 from itertools import islice
+
+
+DOC_SCHEMA = T.StructType([
+    T.StructField('dataset_id', T.StringType()),
+    T.StructField('text', T.StringType()),
+    T.StructField('meta', T.StringType()),
+])
 
 
 def list_lm_dataset_ids():
@@ -19,18 +26,22 @@ def list_lm_dataset_ids():
 
 def iter_dataset(dataset_id: str):
     ds = load_dataset(dataset_id, use_auth_token=True, streaming=True)
-    yield from iter(ds)
+    for row in ds['train']:
+        yield dict(dataset_id=dataset_id, **row)
 
 
 def main():
     spark = SparkSession.builder.getOrCreate()
 
     ids = list_lm_dataset_ids()
-    ids = spark.sparkContext.parallelize(ids)
+    ids = spark.sparkContext.parallelize(ids[:10])
 
-    rows = ids.flatMap(lambda ds_id: islice(iter_dataset(ds_id), 100))
+    df = (
+        ids.flatMap(lambda ds_id: islice(iter_dataset(ds_id), 100))
+        .toDF(DOC_SCHEMA)
+    )
 
-    return rows
+    return df
 
 
 if __name__ == '__main__':
