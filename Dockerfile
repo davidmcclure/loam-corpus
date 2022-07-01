@@ -27,6 +27,6 @@ RUN poetry install
 
 # Install the module.
 ADD . $CODE_DIR
-RUN --mount=type=secret,id=id_rsa,dst=/root/.ssh/id_rsa poetry install
+RUN poetry install
 
 ENV PYSPARK_DRIVER_PYTHON=ipython

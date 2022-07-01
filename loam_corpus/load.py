@@ -4,7 +4,7 @@ from huggingface_hub import HfApi
 from datasets import load_dataset
 from itertools import islice
 
-import paths
+from loam_corpus import paths
 
 
 DST = paths.env_path('loam.parquet')
@@ -54,12 +54,14 @@ def load(
         .flatMap(lambda ds_id: islice(iter_dataset(ds_id), limit_records))
         .toDF(DOC_SCHEMA)
         .withColumn('language', F.udf(parse_language)('dataset_id'))
+        .withColumn('id', F.monotonically_increasing_id())
     )
 
     return df
 
 
 def main():
+    # TODO|dev
     df = load(10, 100)
     df.write.parquet(DST, mode='overwrite')
 
