@@ -1,3 +1,5 @@
+import typer
+
 from pyspark.sql import SparkSession, types as T, functions as F
 from typing import Optional
 from huggingface_hub import HfApi
@@ -61,11 +63,13 @@ def load(
     return df
 
 
-def main():
-    # TODO|dev
-    df = load(10, 100)
+def main(
+    limit_datasets: Optional[int] = typer.Option(None),
+    limit_records: Optional[int] = typer.Option(None)
+):
+    df = load(limit_datasets, limit_records)
     df.write.parquet(DST, mode='overwrite')
 
 
 if __name__ == '__main__':
-    main()
+    typer.run(main)
