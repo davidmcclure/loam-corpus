@@ -32,6 +32,7 @@ def main(chunk_size: int = typer.Option(384)):
         df
         .filter(df.language=='en')
         .withColumn('chunk', F.explode(chunks))
+        .withColumn('chunk_id', F.monotonically_increasing_id())
         .drop('text')
     )
 

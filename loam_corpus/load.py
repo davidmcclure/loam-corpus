@@ -42,9 +42,9 @@ def parse_language(dataset_id: str):
     return dataset_id.split('_')[2]
 
 
-def load(
-    limit_datasets: Optional[int] = None,
-    limit_records: Optional[int] = None,
+def main(
+    limit_datasets: Optional[int] = typer.Option(None),
+    limit_records: Optional[int] = typer.Option(None),
 ):
     spark = SparkSession.builder.getOrCreate()
 
@@ -57,18 +57,11 @@ def load(
         .flatMap(lambda ds_id: islice(iter_dataset(ds_id), limit_records))
         .toDF(DOC_SCHEMA)
         .withColumn('language', F.udf(parse_language)('dataset_id'))
-        .withColumn('id', F.monotonically_increasing_id())
+        .withColumn('doc_id', F.monotonically_increasing_id())
     )
 
-    return df
-
-
-def main(
-    limit_datasets: Optional[int] = typer.Option(None),
-    limit_records: Optional[int] = typer.Option(None)
-):
-    df = load(limit_datasets, limit_records)
     df.write.parquet(DST, mode='overwrite')
+    df.printSchema()
 
 
 if __name__ == '__main__':
