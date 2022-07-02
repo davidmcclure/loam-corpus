@@ -1,4 +1,5 @@
 import re
+import typer
 
 from pyspark.sql import SparkSession, functions as F, types as T
 from boltons.iterutils import chunked
@@ -21,11 +22,11 @@ def split_chunks(text: str, num_tokens: int):
 split_chunks_udf = F.udf(T.ArrayType(T.StringType()))(split_chunks)
 
 
-def main():
+def main(chunk_size: int = typer.Option(384)):
     spark = SparkSession.builder.getOrCreate()
     df = spark.read.parquet(load.DST)
 
-    chunks = split_chunks_udf('text', F.lit(384))
+    chunks = split_chunks_udf('text', F.lit(chunk_size))
 
     df = (
         df
@@ -39,4 +40,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    typer.run(main)
