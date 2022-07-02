@@ -22,7 +22,7 @@ def split_chunks(text: str, num_tokens: int):
 split_chunks_udf = F.udf(T.ArrayType(T.StringType()))(split_chunks)
 
 
-def main(chunk_size: int = typer.Option(384)):
+def main(chunk_size: int = typer.Option(512)):
     spark = SparkSession.builder.getOrCreate()
     df = spark.read.parquet(load.DST)
 
