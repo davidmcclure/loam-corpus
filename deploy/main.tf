@@ -7,39 +7,45 @@ resource "aws_security_group" "spark" {
   description = "Standalone Spark cluster"
   vpc_id      = var.aws_vpc_id
 
+  # TODO: What should the cidr blocks be?
   ingress {
-    from_port   = 22
-    to_port     = 22
-    cidr_blocks = ["0.0.0.0/0"]
-    protocol    = "tcp"
+    from_port        = 22
+    to_port          = 22
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
   }
 
   ingress {
-    from_port   = 80
-    to_port     = 80
-    cidr_blocks = ["0.0.0.0/0"]
-    protocol    = "tcp"
+    from_port        = 80
+    to_port          = 80
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
   }
 
   egress {
-    from_port   = 80
-    to_port     = 80
-    cidr_blocks = ["0.0.0.0/0"]
-    protocol    = "tcp"
+    from_port        = 80
+    to_port          = 80
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
   }
 
   ingress {
-    from_port   = 443
-    to_port     = 443
-    cidr_blocks = ["0.0.0.0/0"]
-    protocol    = "tcp"
+    from_port        = 443
+    to_port          = 443
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
   }
 
   egress {
-    from_port   = 443
-    to_port     = 443
-    cidr_blocks = ["0.0.0.0/0"]
-    protocol    = "tcp"
+    from_port        = 443
+    to_port          = 443
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
   }
 
   # All ports open intra-group, for Spark random assignment.
@@ -57,20 +63,23 @@ resource "aws_security_group" "spark" {
     protocol  = "tcp"
   }
 
+  # TODO: Don't open to the public web.
   # Spark UI
   ingress {
-    from_port   = 8080
-    to_port     = 8081
-    cidr_blocks = ["0.0.0.0/0"]
-    protocol    = "tcp"
+    from_port        = 8080
+    to_port          = 8081
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
   }
 
   # Spark UI "Application detail"
   ingress {
-    from_port   = 4040
-    to_port     = 4040
-    cidr_blocks = ["0.0.0.0/0"]
-    protocol    = "tcp"
+    from_port        = 4040
+    to_port          = 4040
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
   }
 }
 
