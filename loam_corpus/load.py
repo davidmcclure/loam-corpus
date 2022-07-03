@@ -63,6 +63,7 @@ def main(
     # TODO: Parse `meta`.
     df = (
         ids
+        .repartition(ids.count())
         .flatMap(lambda ds_id: islice(iter_dataset(ds_id), limit_records))
         .toDF(DOC_SCHEMA)
         .withColumn('language', F.udf(parse_language)('dataset_id'))
