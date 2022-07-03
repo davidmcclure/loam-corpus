@@ -22,7 +22,10 @@ def split_chunks(text: str, num_tokens: int):
 split_chunks_udf = F.udf(T.ArrayType(T.StringType()))(split_chunks)
 
 
-def main(chunk_size: int = typer.Option(512)):
+def main(
+    chunk_size: int = typer.Option(512),
+    partitions: int = typer.Option(1000),
+):
     spark = SparkSession.builder.getOrCreate()
     df = spark.read.parquet(load.DST)
 
@@ -34,6 +37,7 @@ def main(chunk_size: int = typer.Option(512)):
         .withColumn('chunk', F.explode(chunks))
         .withColumn('chunk_id', F.monotonically_increasing_id())
         .drop('text')
+        .repartition(partitions)
     )
 
     df.write.parquet(DST, mode='overwrite')
