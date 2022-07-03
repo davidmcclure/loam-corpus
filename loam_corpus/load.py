@@ -37,7 +37,12 @@ def list_lm_dataset_ids():
 
 
 def iter_dataset(dataset_id: str):
-    ds = load_dataset(dataset_id, use_auth_token=True, streaming=True)
+    ds = load_dataset(
+        dataset_id,
+        use_auth_token=HUGGINGFACE_TOKEN,
+        streaming=True,
+    )
+
     for row in ds['train']:
         yield dict(dataset_id=dataset_id, **row)
 
