@@ -78,7 +78,7 @@ variable "max_driver_result_size" {
 # AWS / S3 packages for Spark 3.2.1.
 variable "spark_packages" {
   default = [
-    "org.apache.spark:spark-hadoop-cloud_2.13:3.2.1"
+    "org.apache.spark:spark-hadoop-cloud_2.13:3.3.0"
   ]
 }
 
