@@ -93,3 +93,9 @@ variable "aws_secret_access_key" {
   type      = string
   sensitive = true
 }
+
+# TODO: Generic spark_env map variable, for misc ENV vars like this.
+variable "huggingface_token" {
+  type      = string
+  sensitive = true
+}

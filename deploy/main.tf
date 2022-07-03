@@ -90,6 +90,7 @@ locals {
     ecr_repo               = var.ecr_repo
     aws_access_key_id      = var.aws_access_key_id
     aws_secret_access_key  = var.aws_secret_access_key
+    huggingface_token      = var.huggingface_token
     driver_memory          = var.driver_memory
     executor_memory        = var.executor_memory
     gpu_workers            = var.gpu_workers

@@ -1,4 +1,5 @@
 import typer
+import os
 
 from pyspark.sql import SparkSession, types as T, functions as F
 from typing import Optional
@@ -10,6 +11,9 @@ from loam_corpus import paths
 
 
 DST = paths.env_path('loam.parquet')
+
+# TODO: Move to settings.
+HUGGINGFACE_TOKEN = os.environ.get('HUGGINGFACE_TOKEN')
 
 
 DOC_SCHEMA = T.StructType([
@@ -26,7 +30,7 @@ def list_lm_dataset_ids():
     datasets = api.list_datasets(
         author='bigscience-catalogue-lm-data',
         limit=None,
-        use_auth_token=True,
+        use_auth_token=HUGGINGFACE_TOKEN,
     )
 
     return [ds.id for ds in datasets if 'cleaned_lm' in ds.id]
