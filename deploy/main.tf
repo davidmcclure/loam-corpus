@@ -2,6 +2,8 @@ provider "aws" {
   region = var.aws_region
 }
 
+# TODO: Create VPC+subnet
+
 resource "aws_security_group" "spark" {
 
   description = "Standalone Spark cluster"
