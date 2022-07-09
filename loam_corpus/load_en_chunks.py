@@ -3,6 +3,7 @@ import typer
 
 from pyspark.sql import SparkSession, functions as F, types as T
 from boltons.iterutils import chunked
+from nltk.tokenize import sent_tokenize
 
 from loam_corpus import load, paths
 
@@ -10,12 +11,18 @@ from loam_corpus import load, paths
 DST = paths.env_path('en-chunks.parquet')
 
 
-def split_chunks(text: str, num_tokens: int):
-    tokens = list(re.finditer(r'\w+', text))
+def ascii_encode(text: str):
+    return text.encode('ascii', 'ignore').decode()
+
+
+def split_chunks(text: str, num_sents: int):
+    """Split a text into a set of chunks, each containing N sentences.
+    """
+    sents = sent_tokenize(text)
 
     return [
-        text[c[0].start():c[-1].end()]
-        for c in chunked(tokens, num_tokens)
+        ' '.join(chunk)
+        for chunk in chunked(sents, num_sents)
     ]
 
 
