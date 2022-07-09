@@ -29,4 +29,7 @@ RUN poetry install
 ADD . $CODE_DIR
 RUN poetry install
 
+# Download tokenizer data.
+RUN python -m nltk.downloader punkt
+
 ENV PYSPARK_DRIVER_PYTHON=ipython
