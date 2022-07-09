@@ -11,10 +11,12 @@ from loam_corpus import load, paths
 DST = paths.env_path('en-chunks.parquet')
 
 
+@F.udf
 def ascii_encode(text: str):
     return text.encode('ascii', 'ignore').decode()
 
 
+@F.udf(T.ArrayType(T.StringType()))
 def split_chunks(text: str, num_sents: int):
     """Split a text into a set of chunks, each containing N sentences.
     """
@@ -26,17 +28,15 @@ def split_chunks(text: str, num_sents: int):
     ]
 
 
-split_chunks_udf = F.udf(T.ArrayType(T.StringType()))(split_chunks)
-
-
 def main(
-    chunk_size: int = typer.Option(512),
+    sents_per_chunk: int = typer.Option(10),
     partitions: int = typer.Option(1000),
 ):
     spark = SparkSession.builder.getOrCreate()
     df = spark.read.parquet(load.DST)
 
-    chunks = split_chunks_udf('text', F.lit(chunk_size))
+    ascii_text = ascii_encode('text')
+    chunks = split_chunks(ascii_text, F.lit(sents_per_chunk))
 
     df = (
         df
