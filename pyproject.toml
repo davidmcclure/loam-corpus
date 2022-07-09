@@ -7,10 +7,11 @@ authors = ["David McClure"]
 [tool.poetry.dependencies]
 python = "^3.10"
 ipython = "^8.4.0"
-datasets = { git = "https://github.com/huggingface/datasets.git", branch = "fix-xisfile" }
+datasets = { git = "https://github.com/huggingface/datasets.git", branch = "main" }
 pandas = "^1.4.3"
 boltons = "^21.0.0"
 typer = "^0.4.1"
+nltk = "^3.7"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^4.0.1"
