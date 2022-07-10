@@ -22,7 +22,7 @@ ENV PATH=$PATH:/root/.poetry/bin
 RUN poetry config virtualenvs.create false
 
 # Install dependencies.
-ADD pyproject.toml poetry.lock $CODE_DIR
+ADD pyproject.toml poetry.lock $CODE_DIR/
 RUN poetry install
 
 # Install the module.
