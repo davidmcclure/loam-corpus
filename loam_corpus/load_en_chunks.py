@@ -29,8 +29,8 @@ def split_chunks(text: str, num_sents: int):
 
 
 def main(
-    sents_per_chunk: int = typer.Option(10),
-    partitions: int = typer.Option(1000),
+    sents_per_chunk: int = typer.Option(5),
+    partitions: int = typer.Option(10_000),
 ):
     spark = SparkSession.builder.getOrCreate()
     df = spark.read.parquet(load.DST)
@@ -41,10 +41,10 @@ def main(
     df = (
         df
         .filter(df.language == 'en')
+        .repartition(partitions)
         .withColumn('chunk', F.explode(chunks))
         .withColumn('chunk_id', F.monotonically_increasing_id())
         .drop('text')
-        .repartition(partitions)
     )
 
     df.write.parquet(DST, mode='overwrite')
