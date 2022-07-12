@@ -33,15 +33,16 @@ def main(
     partitions: int = typer.Option(10_000),
 ):
     spark = SparkSession.builder.getOrCreate()
-    df = spark.read.parquet(load.DST)
+    df = spark.read.parquet('s3a://loam-corpus/v1/loam-en.parquet')
 
     ascii_text = ascii_encode('text')
     chunks = split_chunks(ascii_text, F.lit(sents_per_chunk))
 
     df = (
         df
-        .filter(df.language == 'en')
-        .repartition(partitions)
+        #.filter(df.language == 'en')
+        #.repartition(partitions)
+        .filter(F.length('text') < 5_000_000)
         .withColumn('chunk', F.explode(chunks))
         .withColumn('chunk_id', F.monotonically_increasing_id())
         .drop('text')
