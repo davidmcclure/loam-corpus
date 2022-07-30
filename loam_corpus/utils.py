@@ -1,3 +1,5 @@
+from datasets import load_dataset
+
 from loam_corpus import settings
 
 

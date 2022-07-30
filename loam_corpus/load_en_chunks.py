@@ -1,11 +1,10 @@
-import re
 import typer
 
 from pyspark.sql import SparkSession, functions as F, types as T
 from boltons.iterutils import chunked
 from nltk.tokenize import sent_tokenize
 
-from loam_corpus import load, paths
+from loam_corpus import paths
 
 
 DST = paths.env_path('en-chunks.parquet')
@@ -40,8 +39,6 @@ def main(
 
     df = (
         df
-        #.filter(df.language == 'en')
-        #.repartition(partitions)
         .filter(F.length('text') < 5_000_000)
         .withColumn('chunk', F.explode(chunks))
         .withColumn('chunk_id', F.monotonically_increasing_id())
