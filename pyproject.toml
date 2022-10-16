@@ -7,13 +7,13 @@ authors = ["David McClure"]
 [tool.poetry.dependencies]
 python = "^3.10"
 ipython = "^8.4.0"
-datasets = { git = "https://github.com/huggingface/datasets.git", branch = "main" }
 pandas = "^1.4.3"
 boltons = "^21.0.0"
 typer = "^0.4.1"
 nltk = "^3.7"
+datasets = "^2.6.1"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 flake8 = "^4.0.1"
 
 [build-system]

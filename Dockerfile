@@ -16,9 +16,9 @@ RUN curl -sL --retry 3 $SPARK_URL | gunzip | tar x -C /opt/ \
   && mv /opt/spark-* $SPARK_HOME \
   && chown -R root:root $SPARK_HOME
 
-# Poetry
-RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
-ENV PATH=$PATH:/root/.poetry/bin
+# Install Poetry.
+RUN curl -sSL https://install.python-poetry.org | python -
+ENV PATH=$PATH:/root/.local/bin
 RUN poetry config virtualenvs.create false
 
 # Install dependencies.
